@@ -2,8 +2,15 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 
-# Create your models here.
-class Post(models.Modelodel):
+class PublicationModel(models.Model):
+    is_published = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class Post(PublicationModel):
     title = models.CharField(max_length=256)
     text = models.TextField()
     pub_date = models.DateTimeField()
@@ -22,28 +29,22 @@ class Post(models.Modelodel):
         on_delete=models.SET_NULL,
         null=True,
     )
-    is_published = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         pass
 
 
-class Category(models.Model):
+class Category(PublicationModel):
     title = models.CharField(max_length=256)
     description = models.TextField()
     slug = models.SlugField(unique=True)
-    is_published = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         pass
 
 
-class Location(models.Model):
+class Location(PublicationModel):
     name = models.CharField(max_length=256)
-    is_published = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         pass
