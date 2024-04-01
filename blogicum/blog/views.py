@@ -2,24 +2,24 @@ from django.http import Http404
 from django.shortcuts import render
 
 
-# def index(request):
-#     return render(request, 'blog/index.html', {'posts': posts})
+def index(request):
+    return render(request, 'blog/index.html', {'posts': posts})
 
 
-# def post_detail(request, post_id):
-#     if post_id not in posts_by_address:
-#         raise Http404(f'Ресурс по запросу {post_id} отсутствует')
-#     return render(request, 'blog/detail.html', {
-#         'post': posts_by_address[post_id],
-#     })
+def post_detail(request, post_id):
+    if post_id not in posts_by_address:
+        raise Http404(f'Ресурс по запросу {post_id} отсутствует')
+    return render(request, 'blog/detail.html', {
+        'post': posts_by_address[post_id],
+    })
 
 
-# def category_posts(request, category_slug):
-#     return render(request, 'blog/category.html', {
-#         'posts_category': [post for post in posts
-#                            if post['category'] == category_slug],
-#         'title': category_slug,
-#     })
+def category_posts(request, category_slug):
+    return render(request, 'blog/category.html', {
+        'posts_category': [post for post in posts
+                           if post['category'] == category_slug],
+        'title': category_slug,
+    })
 
 
 # posts = [

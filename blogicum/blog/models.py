@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 
+User = get_user_model()
+
+
 class PublicationModel(models.Model):
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -14,8 +17,8 @@ class Post(PublicationModel):
     title = models.CharField(max_length=256)
     text = models.TextField()
     pub_date = models.DateTimeField()
-    autor = models.ForeignKey(
-        'User',
+    author = models.ForeignKey(
+        User,
         on_delete=models.CASCADE
     )
     location = models.ForeignKey(
@@ -48,6 +51,3 @@ class Location(PublicationModel):
 
     class Meta:
         pass
-
-
-User = get_user_model()
