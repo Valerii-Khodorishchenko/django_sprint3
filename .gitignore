@@ -147,4 +147,5 @@ dmypy.json
 
 # папки со статикой и медиа
 media/
-blogicum/static_dev/
+blogicum/static/css/bootstrap.min.css
+blogicum/static/css/bootstrap.min.css.map

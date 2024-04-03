@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-!2&#!n*d_p0*@zd+i)28ok@ta&km&$v=go^d-af+a8)ow*&#0g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = False  # if False >>py manage.py runserver --insecure
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1'] # if DEBUG = False: ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -124,7 +124,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static_dev',
+    BASE_DIR / 'static',
 ]
 
 # Default primary key field type
