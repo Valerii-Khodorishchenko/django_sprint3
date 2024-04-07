@@ -133,7 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 HOST = '127.0.0.1'
 if DEBUG:
-    INTERNAL_IPS = [HOST,]
+    INTERNAL_IPS = [HOST]
     INSTALLED_APPS.append('debug_toolbar')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 else:
