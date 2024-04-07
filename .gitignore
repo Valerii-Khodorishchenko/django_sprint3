@@ -149,3 +149,15 @@ dmypy.json
 media/
 blogicum/static/css/bootstrap.min.css
 blogicum/static/css/bootstrap.min.css.map
+
+templates_old/includes/cap.html
+templates_old/includes/footer.html
+templates_old/includes/header.html
+templates_old/base.html
+templates_old/blog/category.html
+templates_old/blog/detail.html
+templates_old/blog/index.html
+templates_old/includes/footer.html
+templates_old/includes/header.html
+templates_old/pages/about.html
+templates_old/pages/rules.html

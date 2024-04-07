@@ -1,68 +1,53 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
+from blog.models import Category, Post
+
+
+CURRENT_DATRTIME = timezone.now()
 
 
 def index(request):
-    return render(request, 'blog/index.html', {'posts': posts})
-
-
-def post_detail(request, post_id):
-    if post_id not in posts_by_address:
-        raise Http404(f'Ресурс по запросу {post_id} отсутствует')
-    return render(request, 'blog/detail.html', {
-        'post': posts_by_address[post_id],
-    })
+    post_list = Post.objects.select_related(
+        'location', 'author', 'category'
+    ).filter(
+        pub_date__lt=CURRENT_DATRTIME,
+        is_published=True,
+        category__is_published=True,
+    ).order_by('-pub_date', 'title')[:5]
+    return render(request, 'blog/index.html', {'post_list': post_list})
 
 
 def category_posts(request, category_slug):
+    try:
+        category = Category.objects.get(
+            slug=category_slug, is_published=True)
+    except Category.DoesNotExist as exc:
+        raise Http404('Этой категории нет в публикации.') from exc
+
+    post_list = Post.objects.select_related(
+        'location', 'author', 'category'
+    ).filter(
+        category__slug=category_slug,
+        pub_date__lt=CURRENT_DATRTIME,
+        is_published=True,
+        category__is_published=True
+    ).order_by('-pub_date', 'title')
     return render(request, 'blog/category.html', {
-        'posts_category': [post for post in posts
-                           if post['category'] == category_slug],
-        'title': category_slug,
+        'post_list': post_list,
+        'category': category,
     })
 
 
-posts = [
-    {
-        'id': 0,
-        'location': 'Остров отчаянья',
-        'date': '30 сентября 1659 года',
-        'category': 'travel',
-        'text': '''Наш корабль, застигнутый в открытом море
-                страшным штормом, потерпел крушение.
-                Весь экипаж, кроме меня, утонул; я же,
-                несчастный Робинзон Крузо, был выброшен
-                полумёртвым на берег этого проклятого острова,
-                который назвал островом Отчаяния.''',
-    },
-    {
-        'id': 1,
-        'location': 'Остров отчаянья',
-        'date': '1 октября 1659 года',
-        'category': 'not-my-day',
-        'text': '''Проснувшись поутру, я увидел, что наш корабль сняло
-                с мели приливом и пригнало гораздо ближе к берегу.
-                Это подало мне надежду, что, когда ветер стихнет,
-                мне удастся добраться до корабля и запастись едой и
-                другими необходимыми вещами. Я немного приободрился,
-                хотя печаль о погибших товарищах не покидала меня.
-                Мне всё думалось, что, останься мы на корабле, мы
-                непременно спаслись бы. Теперь из его обломков мы могли бы
-                построить баркас, на котором и выбрались бы из этого
-                гиблого места.''',
-    },
-    {
-        'id': 2,
-        'location': 'Остров отчаянья',
-        'date': '25 октября 1659 года',
-        'category': 'not-my-day',
-        'text': '''Всю ночь и весь день шёл дождь и дул сильный
-                порывистый ветер. 25 октября.  Корабль за ночь разбило
-                в щепки; на том месте, где он стоял, торчат какие-то
-                жалкие обломки,  да и те видны только во время отлива.
-                Весь этот день я хлопотал  около вещей: укрывал и
-                укутывал их, чтобы не испортились от дождя.''',
-    },
-]
-
-posts_by_address = {post['id']: post for post in posts}
+def post_detail(request, post_id):
+    post = get_object_or_404(
+        Post.objects.select_related(
+            'location', 'author', 'category'
+        ).filter(
+            pub_date__lt=CURRENT_DATRTIME,
+            is_published=True,
+            category__is_published=True,
+        ),
+        pk=post_id
+    )
+    return render(request, 'blog/detail.html', {'post': post})

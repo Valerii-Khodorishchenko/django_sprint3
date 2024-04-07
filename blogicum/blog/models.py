@@ -20,11 +20,11 @@ class PublicationModel(models.Model):
 
 class Post(PublicationModel):
     title = models.CharField(verbose_name='Заголовок', max_length=256)
-    text = models.TextField(
-        verbose_name='Текст',
-        help_text=('Если установить дату и время в будущем — можно делать',
-                   'отложенные публикации.'))
-    pub_date = models.DateTimeField(verbose_name='Дата и время публикации')
+    text = models.TextField(verbose_name='Текст')
+    pub_date = models.DateTimeField(
+        verbose_name='Дата и время публикации',
+        help_text=('Если установить дату и время в будущем — можно делать отложенные публикации.'),
+    )
     author = models.ForeignKey(
         User,
         verbose_name='Автор публикации',
@@ -57,8 +57,7 @@ class Category(PublicationModel):
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         verbose_name='Идентификатор',
-        help_text=('Идентификатор страницы для URL; разрешены'
-                   'символы латиницы, цифры, дефис и подчёркивание.'),
+        help_text=('Идентификатор страницы для URL; разрешены символы латиницы, цифры, дефис и подчёркивание.'),
         unique=True
     )
 
