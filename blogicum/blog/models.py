@@ -90,7 +90,6 @@ class Post(PublicationModel):
     )
     objects = PostManager()
 
-
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
