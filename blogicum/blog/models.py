@@ -1,8 +1,19 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.utils import timezone
 
 User = get_user_model()
+
+
+class PostManager(models.Manager):
+    def get_published_posts(self):
+        return self.select_related(
+            'location', 'author', 'category'
+        ).filter(
+            pub_date__lt=timezone.now(),
+            is_published=True,
+            category__is_published=True
+        )
 
 
 class PublicationModel(models.Model):
@@ -16,41 +27,6 @@ class PublicationModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class Post(PublicationModel):
-    title = models.CharField(verbose_name='Заголовок', max_length=256)
-    text = models.TextField(verbose_name='Текст')
-    pub_date = models.DateTimeField(
-        verbose_name='Дата и время публикации',
-        help_text=('Если установить дату и время в будущем — можно делать '
-                   'отложенные публикации.'),
-    )
-    author = models.ForeignKey(
-        User,
-        verbose_name='Автор публикации',
-        on_delete=models.CASCADE
-    )
-    location = models.ForeignKey(
-        'Location',
-        verbose_name='Местоположение',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    category = models.ForeignKey(
-        'Category',
-        verbose_name='Категория',
-        on_delete=models.SET_NULL,
-        null=True,
-    )
-
-    class Meta:
-        verbose_name = 'публикация'
-        verbose_name_plural = 'Публикации'
-
-    def __str__(self):
-        return self.title
 
 
 class Category(PublicationModel):
@@ -68,7 +44,8 @@ class Category(PublicationModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title
+        return (f'|Пост: {self.title[:20]}... \n'
+                f'|Описание: {self.description[:40]}...')
 
 
 class Location(PublicationModel):
@@ -79,4 +56,45 @@ class Location(PublicationModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name
+        return f'{self.name[:20]}...'
+
+
+class Post(PublicationModel):
+    title = models.CharField(verbose_name='Заголовок', max_length=256)
+    text = models.TextField(verbose_name='Текст')
+    pub_date = models.DateTimeField(
+        verbose_name='Дата и время публикации',
+        help_text=('Если установить дату и время в будущем — можно делать '
+                   'отложенные публикации.'),
+    )
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор публикации',
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
+    location = models.ForeignKey(
+        Location,
+        verbose_name='Местоположение',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='posts'
+    )
+    category = models.ForeignKey(
+        Category,
+        verbose_name='Категория',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='posts'
+    )
+    objects = PostManager()
+
+
+    class Meta:
+        verbose_name = 'публикация'
+        verbose_name_plural = 'Публикации'
+        ordering = ['-pub_date', 'title']
+
+    def __str__(self):
+        return f'|Пост: {self.title[:20]}...\n|Текст: {self.text[:40]}...'
