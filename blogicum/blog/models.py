@@ -1,19 +1,32 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Min
 from django.utils import timezone
 
 User = get_user_model()
 
 
-class PostManager(models.Manager):
+class PostQuerySet(models.QuerySet):
     def get_published_posts(self):
         return self.select_related(
             'location', 'author', 'category'
         ).filter(
-            pub_date__lt=timezone.now(),
+            pub_date__range=(
+                self.aggregate(
+                    first_date=models.Min('pub_date'))['first_date'],
+                timezone.now()
+            ),
             is_published=True,
             category__is_published=True
         )
+
+
+class PostManager(models.Manager):
+    def get_queryset(self):
+        return PostQuerySet(self.model)
+
+    def get_published(self):
+        return self.get_queryset().get_published_posts()
 
 
 class PublicationModel(models.Model):
@@ -59,6 +72,12 @@ class Location(PublicationModel):
         return f'{self.name[:20]}...'
 
 
+class PostForeiginKey(models.ForeignKey):
+    def __init__(self, to=None, on_delete=models.CASCADE,
+                 related_name='posts', **kwargs):
+        super().__init__(to, on_delete, related_name, **kwargs)
+
+
 class Post(PublicationModel):
     title = models.CharField(verbose_name='Заголовок', max_length=256)
     text = models.TextField(verbose_name='Текст')
@@ -67,33 +86,29 @@ class Post(PublicationModel):
         help_text=('Если установить дату и время в будущем — можно делать '
                    'отложенные публикации.'),
     )
-    author = models.ForeignKey(
+    author = PostForeiginKey(
         User,
         verbose_name='Автор публикации',
-        on_delete=models.CASCADE,
-        related_name='posts'
     )
-    location = models.ForeignKey(
+    location = PostForeiginKey(
         Location,
         verbose_name='Местоположение',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='posts'
     )
-    category = models.ForeignKey(
+    category = PostForeiginKey(
         Category,
         verbose_name='Категория',
         on_delete=models.SET_NULL,
         null=True,
-        related_name='posts'
     )
     objects = PostManager()
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
-        ordering = ['-pub_date', 'title']
+        ordering = ('-pub_date', 'title')
 
     def __str__(self):
         return f'|Пост: {self.title[:20]}...\n|Текст: {self.text[:40]}...'
