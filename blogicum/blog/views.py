@@ -19,7 +19,6 @@ def category_posts(request, category_slug):
 
 
 def post_detail(request, post_id):
-    return render(request,
-                  'blog/detail.html',
-                  {'post': get_object_or_404(Post.objects.get_published(),
-                                             pk=post_id)})
+    return render(request, 'blog/detail.html',
+                  {'post': get_object_or_404(
+                      Post.objects.get_published(), pk=post_id)})
