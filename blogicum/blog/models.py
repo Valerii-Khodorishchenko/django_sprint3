@@ -90,12 +90,10 @@ class Post(PublicationModel):
     )
     objects = PostQuerySet.as_manager()
 
-
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         ordering = ('-pub_date', 'title')
-
 
     def __str__(self):
         return f'|Пост: {self.title[:20]}...\n|Текст: {self.text[:40]}...'
