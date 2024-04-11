@@ -71,6 +71,7 @@ class Post(PublicationModel):
         User,
         verbose_name='Автор публикации',
         on_delete=models.CASCADE,
+        related_name='posts',
     )
     location = models.ForeignKey(
         Location,
@@ -78,6 +79,7 @@ class Post(PublicationModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name='posts',
     )
     category = models.ForeignKey(
         Category,
@@ -86,14 +88,14 @@ class Post(PublicationModel):
         null=True,
         related_name='posts',
     )
-    posts = PostQuerySet.as_manager()
+    objects = PostQuerySet.as_manager()
 
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         ordering = ('-pub_date', 'title')
-        
+
 
     def __str__(self):
         return f'|Пост: {self.title[:20]}...\n|Текст: {self.text[:40]}...'
